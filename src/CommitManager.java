@@ -30,6 +30,9 @@ public class CommitManager{
         if(developer==null || task==null || commitFiles==null){
             throw new IllegalArgumentException();
         }
+        if(commitFiles.isEmpty()){
+            throw new IllegalArgumentException();
+        }
         if(commitTime<0){
             throw new IllegalArgumentException();
         }
@@ -119,7 +122,26 @@ public class CommitManager{
 
 
     Set<String> repetitionInBugs(int threshold){
-        return null;
+        //call helper class method to return all bug tasks in currently set time window
+        List<String> bugTasks = CommitUtilityOperations.getBugTasks(allCommits, startTime, endTime);
+        Set<String> repeatedBugs = new HashSet<>();
+        int repetitionCount;
+        //loop through list of bug tasks and tally number of occurrences
+        for(int i=0; i<bugTasks.size(); i++){
+            if(repeatedBugs.contains(bugTasks.get(i))){
+                continue;   //skip this bug task if its already designated as a repeated bug
+            }
+            repetitionCount = 0;
+            for(int j=0; j<bugTasks.size(); j++){
+                if(bugTasks.get(i).equals(bugTasks.get(j))){
+                    repetitionCount++;
+                }
+            }
+            if(repetitionCount>=threshold){   //denotes that this bug task is a "repetitionInBug"
+                repeatedBugs.add(bugTasks.get(i));
+            }
+        }
+        return repeatedBugs;
     }
 
 

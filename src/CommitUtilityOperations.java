@@ -122,4 +122,29 @@ public class CommitUtilityOperations {
         }
         return sortedMap;
     }
+
+
+    //this method is invoked during repetitionInBugs, and simply returns a list of all the bug tasks during the time window set
+    static List<String> getBugTasks(List<Commit> allCommits, int startTime, int endTime){
+        List<String> bugTasks = new ArrayList<>();
+        if(startTime==-1 && endTime==-1){   //no time window set, so add all bug tasks
+            for(int i=0; i<allCommits.size(); i++){
+                Commit commit = (Commit) allCommits.get(i);
+                if(commit.getTask().charAt(0)=='B'){
+                    bugTasks.add(commit.getTask());
+                }
+            }
+        }
+        else{   //a time window is set, so we add only the bug tasks committed during the window
+            for(int j=0; j<allCommits.size(); j++){
+                Commit commit = (Commit) allCommits.get(j);
+                if(commit.getCommitTime()>=startTime && commit.getCommitTime()<=endTime){
+                    if(commit.getTask().charAt(0)=='B'){
+                        bugTasks.add(commit.getTask());
+                    }
+                }
+            }
+        }
+        return bugTasks;
+    }
 }
