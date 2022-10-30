@@ -7,7 +7,7 @@ import java.util.HashSet;
 //and how many times that edge appears (how many time files appeared together in a single commit)
 public class GraphEdges {
 
-    //each edge is stored as String-Integer map where the string denotes the
+    //each edge is stored as an entry in a String-Integer map where the string denotes the
     //adjacent vertex (other file that appeared with this file) and the integer value
     //denotes how many times they appeared together
     private Map<String, Integer> edges;

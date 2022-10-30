@@ -7,10 +7,15 @@ public class CommitUtilityOperations {
 
     //invoked when experts() method called. It groups each developer with all the files they committed.
     //it returns a String-List map with the string denoting the developer and the list containing all files they committed.
-    static Map<String, List<String>> organizeDeveloperCommits(List<Commit> allCommits){
+    static Map<String, List<String>> groupDeveloperCommitFiles(List<Commit> allCommits, int startTime, int endTIme){
         Map<String, List<String>> developers = new HashMap<>();
         for(int i=0; i<allCommits.size(); i++){
             Commit commit = (Commit) allCommits.get(i);
+            if(startTime!=-1 && endTIme!=-1){   //a time window is set
+                if(commit.getCommitTime()<startTime || commit.getCommitTime()>endTIme){
+                    continue;   //skip commits outside the time window set
+                }
+            }
             List<String> existingFiles;   //list to store files developer committed
             if(developers.containsKey(commit.getDeveloper())){   //check if developer already has files associated with them
                 existingFiles = developers.get(commit.getDeveloper());   //operate on existing list of files
@@ -36,10 +41,15 @@ public class CommitUtilityOperations {
 
     //invoked when broadFeatures() method is called. This method groups each feature task identifier with all the files it was committed with.
     //returns String-List map with string denoting feature task identifier and list containing all the files associated with it.
-    static Map<String, List<String>> organizeFeatureFiles(List<Commit> allCommits){
+    static Map<String, List<String>> groupFeatureFiles(List<Commit> allCommits, int startTime, int endTime){
         Map<String, List<String>> features = new HashMap<>();
         for(int i=0; i<allCommits.size(); i++){
             Commit commit = (Commit) allCommits.get(i);
+            if(startTime!=-1 && endTime!=-1){   //a time window is set
+                if(commit.getCommitTime()<startTime || commit.getCommitTime()>endTime){
+                    continue;   //skip commits outside the time window set
+                }
+            }
             String commitTask = commit.getTask();
             if(commitTask.charAt(0)!='F'){
                 continue;  //skip any commit tasks that are not features
@@ -69,7 +79,7 @@ public class CommitUtilityOperations {
 
     //invoked when busyClasses() is called. The method organizes all files committed during a certain time window into a list
     //that is sorted according to how many times each file appeared in descending order
-    static Map<String, Integer> organizeFileOccurrences(List<Commit> allCommits, int startTime, int endTime){
+    static Map<String, Integer> calculateFileOccurrences(List<Commit> allCommits, int startTime, int endTime){
         Map<String, Integer> fileOccurrences = new HashMap<>();
         for(int i=0; i<allCommits.size(); i++){
             Commit commit = (Commit) allCommits.get(i);
@@ -99,7 +109,6 @@ public class CommitUtilityOperations {
     }
 
 
-
     //this method is used to sort maps by value in descending order.
     //invoked when organizeFileOccurrences is called
     private static Map<String, Integer> sortByValue(Map<String, Integer> unsortedMap){
@@ -122,6 +131,7 @@ public class CommitUtilityOperations {
         }
         return sortedMap;
     }
+
 
 
     //this method is invoked during repetitionInBugs, and simply returns a list of all the bug tasks during the time window set

@@ -150,7 +150,7 @@ public class CommitManager{
     Set<String> broadFeatures(int threshold){
         Set<Set<String>> components = softwareComponents();
         //call helper class method that groups each feature task with all the files associated with it
-        Map<String, List<String>> features = CommitUtilityOperations.organizeFeatureFiles(allCommits);
+        Map<String, List<String>> features = CommitUtilityOperations.groupFeatureFiles(allCommits, startTime, endTime);
         Set<String> broadFeatures = new HashSet<>();
         //loop through feature task in the feature-files groupings map
         for(Map.Entry<String, List<String>> feature: features.entrySet()){
@@ -183,7 +183,7 @@ public class CommitManager{
         Set<String> experts = new HashSet<>();
         Set<Set<String>> components = softwareComponents();
         //call helper class method that returns a map that groups each developer with every file they committed
-        Map<String, List<String>> developers = CommitUtilityOperations.organizeDeveloperCommits(allCommits);
+        Map<String, List<String>> developers = CommitUtilityOperations.groupDeveloperCommitFiles(allCommits, startTime, endTime);
         for(Map.Entry<String, List<String>> developer: developers.entrySet()){
             int expertThresholdCounter = 0;
             Iterator<Set<String>> componentsItr = components.iterator();
@@ -214,7 +214,7 @@ public class CommitManager{
         }
         //call helper class method that returns a String-Integer map where the string is a file's name and the integer value is the number of times it occurred.
         //note that this map is sorted by its values (number of occurrences) in descending order and only contains files committed during the time window (if one is set)
-        Map<String, Integer> fileOccurrences = CommitUtilityOperations.organizeFileOccurrences(allCommits, startTime, endTime);
+        Map<String, Integer> fileOccurrences = CommitUtilityOperations.calculateFileOccurrences(allCommits, startTime, endTime);
         int fileLimitCounter = 0;
         int tiedOccurrenceAtLimit = -1;
         //iterate through the files in the sorted file occurrences map, adding files into the busyClasses list until we hit the limit
