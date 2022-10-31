@@ -28,23 +28,26 @@ public class CommitManager{
 
     public void addCommit(String developer, int commitTime, String task, Set<String> commitFiles) throws IllegalArgumentException{
         if(developer==null || task==null || commitFiles==null){
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Null value passed! \n\tSource: addCommit");
+        }
+        if(developer.trim().equals("")){
+            throw new IllegalArgumentException("Developer is empty string! \n\tSource: addCommit");
         }
         if(commitFiles.isEmpty()){
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Commit files is empty set (no commit files)! \n\tSource: addCommit");
         }
         if(commitTime<0){
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Commit time is negative (invalid)! \n\tSource: addCommit");
         }
         if(task.charAt(0)!='F' && task.charAt(0)!='B'){
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Commit task is not a bug ('B') or feature ('F') [case-sensitive]! \n\tSource: addCommit");
         }
         if(task.charAt(1)!='-'){
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Commit task formatted incorrectly! \n\tSource: addCommit");
         }
-        /*if(task.length()==2){
-            throw new IllegalArgumentException();
-        }*/
+        if(task.trim().length()==2){   //denotes task identifier is "B-" or "F-" followed by an empty string, which is invalid as it provides no identifying information
+            throw new IllegalArgumentException("Commit task identifier empty! \n\tSource: addCommit");
+        }
         //encapsulate commit data in "Commit" object and store in list for later use
         Commit newCommit = new Commit(commitTime, commitFiles, task, developer);
         allCommits.add(newCommit);
@@ -121,7 +124,10 @@ public class CommitManager{
 
 
 
-    Set<String> repetitionInBugs(int threshold){
+    Set<String> repetitionInBugs(int threshold) throws IllegalArgumentException{
+        if(threshold<1){
+            throw new IllegalArgumentException("Threshold must be greater than 0! \n\tSource: repetitionInBugs");
+        }
         //call helper class method to return all bug tasks in currently set time window
         List<String> bugTasks = CommitUtilityOperations.getBugTasks(allCommits, startTime, endTime);
         Set<String> repeatedBugs = new HashSet<>();
@@ -147,7 +153,10 @@ public class CommitManager{
 
 
 
-    Set<String> broadFeatures(int threshold){
+    Set<String> broadFeatures(int threshold) throws IllegalArgumentException{
+        if(threshold<1){
+            throw new IllegalArgumentException("Threshold must be greater than 0! \n\tSource: broadFeatures");
+        }
         Set<Set<String>> components = softwareComponents();
         //call helper class method that groups each feature task with all the files associated with it
         Map<String, List<String>> features = CommitUtilityOperations.groupFeatureFiles(allCommits, startTime, endTime);
@@ -179,7 +188,10 @@ public class CommitManager{
 
 
 
-    Set<String> experts(int threshold){
+    Set<String> experts(int threshold) throws IllegalArgumentException{
+        if(threshold<1){
+            throw new IllegalArgumentException("Threshold must be greater than 0! \n\tSource: experts");
+        }
         Set<String> experts = new HashSet<>();
         Set<Set<String>> components = softwareComponents();
         //call helper class method that returns a map that groups each developer with every file they committed
@@ -207,7 +219,10 @@ public class CommitManager{
 
 
 
-    List<String> busyClasses(int limit){
+    List<String> busyClasses(int limit) throws IllegalArgumentException{
+        if(limit<1){
+            throw new IllegalArgumentException("Limit must be greater than 0! \n\tSource: busyClasses");
+        }
         List<String> busyClasses = new ArrayList<>();
         if(limit<=0){
             return busyClasses;
