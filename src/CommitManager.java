@@ -9,7 +9,6 @@ public class CommitManager{
     private CommitFileGraph commitGraph;
     private CommitFileGraph timeWindowCommitGraph;
     private Set<Set<String>> components;
-    private boolean componentsSet;
     private int minimumComponentThreshold;
 
     public CommitManager(){
@@ -20,7 +19,6 @@ public class CommitManager{
         commitGraph = new CommitFileGraph();   //graph that stores ALL commit files and their appearances together
         timeWindowCommitGraph = new CommitFileGraph();   //graph that stores a certain time window's commit files and their appearances together
         components = new HashSet<>();
-        componentsSet = false;   //boolean denoting whether components have been set (i.e., has componentMinimum/softwareComponents been called)
         minimumComponentThreshold = -1;   //int to store minimum component threshold set by componentMinimum (-1 denotes that threshold not yet set)
     }
 
@@ -71,7 +69,6 @@ public class CommitManager{
                 timeWindowCommitGraph.addToGraph(commit.getCommitFiles());
             }
         }
-        componentsSet = false;   //set to false since components need to be recalculated based on the time window set
         this.startTime = startTime;
         this.endTime = endTime;
         return true;
@@ -82,7 +79,6 @@ public class CommitManager{
     void clearTimeWindow(){
         startTime = -1;
         endTime = -1;
-        componentsSet = false;   //set to false since components may need to be recalculated
         timeWindowCommitGraph.clear();   //cleared since no time window is in effect
     }
 
@@ -96,30 +92,25 @@ public class CommitManager{
         minimumComponentThreshold = threshold;
         if(startTime!=-1 && endTime!=-1){   //a time window is set, so group files within time window into components
             components = timeWindowCommitGraph.groupComponents(threshold);
-            componentsSet = true;
             return true;
         }
         else{   //no time window set, so group all files into components
             components = commitGraph.groupComponents(threshold);
-            componentsSet = true;
             return true;
         }
     }
 
 
     Set<Set<String>> softwareComponents(){
-        if(componentsSet){
-            return components;
+
+        if(minimumComponentThreshold>0){   //a minimum component threshold was set
+            componentMinimum(minimumComponentThreshold);   //return components based on threshold
         }
-        else{
-            if(minimumComponentThreshold>0){   //a minimum component threshold was set
-                componentMinimum(minimumComponentThreshold);   //return components based on threshold
-            }
-            else{   //no minimum component threshold set
-                componentMinimum(1);   //group files that appeared at least once together as component
-            }
-            return components;
+        else{   //no minimum component threshold set
+            componentMinimum(1);   //group files that appeared at least once together as component
         }
+        return components;
+
     }
 
 

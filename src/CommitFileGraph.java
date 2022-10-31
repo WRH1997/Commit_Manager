@@ -1,8 +1,4 @@
-import java.util.HashSet;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.Iterator;
+import java.util.*;
 
 //this class stores a graph of the different commit files that have appeared thus far
 //and the edges between them that denote files appeared together in a commit.
@@ -54,15 +50,16 @@ public class CommitFileGraph {
             }
             allComponents.add(component);
         }
+        removeDuplicateComponents(allComponents);
         return allComponents;
     }
 
 
     //this function checks whether a file is already present in an existing component
     //the function is called during the groupComponents(..) function above
-    Set<String> componentsContain(Set<Set<String>> allComponents, String file){
+    private Set<String> componentsContain(Set<Set<String>> allComponents, String file){
         //CITATION NOTE: I was having trouble iterating through a set of sets since my original approach [Iterator itr = allComponents.iterator()]
-        //was not iterating properly. So I looked online and it seems I needed to explicitly state the type of data
+        //was not iterating properly. So I looked online, and it seems I needed to explicitly state the type of data
         //the iterator needs to go through like such: Iterator<Set<String>> itr = allComponents.iterator().
         //I found the cited information at the following URL: //https://stackoverflow.com/questions/17883812/iterating-over-sets-of-sets
         //Accessed: October 27, 2022
@@ -74,6 +71,38 @@ public class CommitFileGraph {
             }
         }
         return null;
+    }
+
+
+    private Set<Set<String>> removeDuplicateComponents(Set<Set<String>> allComponentsSet){
+        List allComponentsList = new ArrayList<>();
+        Iterator<Set<String>> itr = allComponentsSet.iterator();
+        while(itr.hasNext()){
+            List componentFiles = new ArrayList<>();
+            componentFiles.addAll(itr.next());
+            Collections.sort(componentFiles);
+            allComponentsList.add(componentFiles);
+        }
+        List uniqueComponents = new ArrayList();
+        for(int i=0; i<allComponentsList.size(); i++){
+            boolean duplicateFound = false;
+            for(int j=0; j<uniqueComponents.size(); j++){
+                if(allComponentsList.get(i).equals(uniqueComponents.get(j))){
+                    duplicateFound = true;
+                    break;
+                }
+            }
+            if(!duplicateFound){
+                uniqueComponents.add(allComponentsList.get(i));
+            }
+        }
+        allComponentsSet.clear();
+        for(int x=0; x<uniqueComponents.size(); x++){
+            Set component = new HashSet();
+            component.addAll((ArrayList) uniqueComponents.get(x));
+            allComponentsSet.add(component);
+        }
+        return allComponentsSet;
     }
 
 
