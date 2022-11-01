@@ -1,7 +1,7 @@
 import java.util.*;
 
 
-//this helper class provides CommitManager with utility operations that are used in the experts, repetitionInBugs, broadFeatures, and bustClasses methods
+//this helper class provides CommitManager with utility operations that are used in the experts, repetitionInBugs, broadFeatures, and busyClasses methods
 public class CommitUtilityOperations {
 
 
