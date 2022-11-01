@@ -54,23 +54,23 @@ public class CommitUtilityOperations {
             if(commitTask.charAt(0)!='F'){
                 continue;  //skip any commit tasks that are not features
             }
-            List<String> existingFiles;   //list to store associated files
+            List<String> featureFiles;   //list to store associated files
             if(features.containsKey(commitTask)){   //check if feature already has some files associated with it
-                existingFiles = features.get(commitTask);   //operate on existing list of associated files
+                featureFiles = features.get(commitTask);   //operate on existing list of associated files
             }
             else{
-                existingFiles = new ArrayList<>();   //create new list for this feature
+                featureFiles = new ArrayList<>();   //create new list for this feature
             }
             Set<String> commitFiles = commit.getCommitFiles();
             //iterate through all commits and add all files that appear with this feature task into its list
             Iterator filesItr = commitFiles.iterator();
             while(filesItr.hasNext()){
                 String file = (String) filesItr.next();
-                if(!existingFiles.contains(file)){
-                    existingFiles.add(file);
+                if(!featureFiles.contains(file)){
+                    featureFiles.add(file);
                 }
             }
-            features.put(commitTask, existingFiles);
+            features.put(commitTask, featureFiles);
         }
         return features;
     }
@@ -134,27 +134,37 @@ public class CommitUtilityOperations {
 
 
 
-    //this method is invoked during repetitionInBugs, and simply returns a list of all the bug tasks during the time window set
-    static List<String> getBugTasks(List<Commit> allCommits, int startTime, int endTime){
-        List<String> bugTasks = new ArrayList<>();
-        if(startTime==-1 && endTime==-1){   //no time window set, so add all bug tasks
-            for(int i=0; i<allCommits.size(); i++){
-                Commit commit = (Commit) allCommits.get(i);
-                if(commit.getTask().charAt(0)=='B'){
-                    bugTasks.add(commit.getTask());
+    //this method is invoked during repetitionInBugs, and returns each bug task with grouped with all its associated files occurrences during the time window set
+    //returns String-List map with bug task string as key and list of all its file occurrences as the list value
+    static Map<String, List<String>> groupBugFiles(List allCommits, int startTime, int endTime){
+        Map<String, List<String>> allBugFiles = new HashMap<>();
+        for(int i=0; i<allCommits.size(); i++){
+            Commit commit = (Commit) allCommits.get(i);
+            String commitTask = commit.getTask();
+            if(commitTask.charAt(0)!='B'){
+                continue;    //skip commits that are not bug tasks
+            }
+            int commitTime = commit.getCommitTime();
+            if(startTime!=-1 && endTime!=-1){   //a time window is in effect
+                if(commitTime<startTime || commitTime>endTime){
+                    continue;   //skip commits outside the time window
                 }
             }
-        }
-        else{   //a time window is set, so we add only the bug tasks committed during the window
-            for(int j=0; j<allCommits.size(); j++){
-                Commit commit = (Commit) allCommits.get(j);
-                if(commit.getCommitTime()>=startTime && commit.getCommitTime()<=endTime){
-                    if(commit.getTask().charAt(0)=='B'){
-                        bugTasks.add(commit.getTask());
-                    }
-                }
+            List<String> bugFiles;
+            if(allBugFiles.containsKey(commitTask)){
+                bugFiles = allBugFiles.get(commitTask);    //this bug task already has files associated with it, so we will append to that list
             }
+            else{
+                bugFiles = new ArrayList<>();    //this bug task has no files associated with it yet, so create new list of files
+            }
+            Set<String> commitFiles = commit.getCommitFiles();
+            Iterator filesItr = commitFiles.iterator();
+            //iterate through bug commit and add each file to its list of files
+            while(filesItr.hasNext()){
+                bugFiles.add((String) filesItr.next());
+            }
+            allBugFiles.put(commitTask, bugFiles);    //add/update bug task's file list in map
         }
-        return bugTasks;
+        return allBugFiles;
     }
 }

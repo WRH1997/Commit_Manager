@@ -101,8 +101,8 @@ public class CommitManager{
     }
 
 
-    Set<Set<String>> softwareComponents(){
 
+    Set<Set<String>> softwareComponents(){
         if(minimumComponentThreshold>0){   //a minimum component threshold was set
             componentMinimum(minimumComponentThreshold);   //return components based on threshold
         }
@@ -110,8 +110,8 @@ public class CommitManager{
             componentMinimum(1);   //group files that appeared at least once together as component
         }
         return components;
-
     }
+
 
 
 
@@ -119,23 +119,23 @@ public class CommitManager{
         if(threshold<1){
             throw new IllegalArgumentException("Threshold must be greater than 0! \n\tSource: repetitionInBugs");
         }
-        //call helper class method to return all bug tasks in currently set time window
-        List<String> bugTasks = CommitUtilityOperations.getBugTasks(allCommits, startTime, endTime);
+        //call helper class method that returns a String-List map that groups each bug task with a list of all its associated files committed during the time window set
+        Map<String, List<String>> bugTasks = CommitUtilityOperations.groupBugFiles(allCommits, startTime, endTime);
         Set<String> repeatedBugs = new HashSet<>();
-        int repetitionCount;
-        //loop through list of bug tasks and tally number of occurrences
-        for(int i=0; i<bugTasks.size(); i++){
-            if(repeatedBugs.contains(bugTasks.get(i))){
-                continue;   //skip this bug task if its already designated as a repeated bug
-            }
-            repetitionCount = 0;
-            for(int j=0; j<bugTasks.size(); j++){
-                if(bugTasks.get(i).equals(bugTasks.get(j))){
-                    repetitionCount++;
+        for(Map.Entry<String, List<String>> bugTask: bugTasks.entrySet()){    //iterate through each bug task-file grouping
+            ArrayList<String> bugFiles = (ArrayList) bugTask.getValue();
+            //iterate through each of the bug task's files and tally how many times that file appeared
+            for(int i=0; i<bugFiles.size(); i++){
+                int fileTally = 0;
+                for(int j=0; j<bugFiles.size(); j++){
+                    if(bugFiles.get(i).equals(bugFiles.get(j))){
+                        fileTally++;
+                    }
                 }
-            }
-            if(repetitionCount>=threshold){   //denotes that this bug task is a "repetitionInBug"
-                repeatedBugs.add(bugTasks.get(i));
+                if(fileTally>=threshold){   //a file in that bug task has appeared at least "threshold" times
+                    repeatedBugs.add(bugTask.getKey());
+                    break;   //at least one file meets threshold criteria, so we don't need to check the rest of the bug task's files
+                }
             }
         }
         return repeatedBugs;
