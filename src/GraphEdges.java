@@ -1,7 +1,4 @@
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.HashSet;
+import java.util.*;
 
 //this class stores the edges between different commit files
 //and how many times that edge appears (how many time files appeared together in a single commit)
