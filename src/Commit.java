@@ -1,4 +1,4 @@
-import java.util.Set;
+import java.util.*;
 
 //this class stores the data of a single commit. In other words, each commit
 //is encapsulated into an object of this class.

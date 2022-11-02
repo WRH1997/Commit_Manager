@@ -11,6 +11,7 @@ public class CommitManager{
     private Set<Set<String>> components;
     private int minimumComponentThreshold;
 
+
     public CommitManager(){
         commitDatabase = new CommitDatabase();   //"Database" object that stores and organizes commits
         //-1 for startTIme and endTime denote that not time window is currently in effect

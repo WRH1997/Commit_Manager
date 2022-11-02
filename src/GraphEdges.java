@@ -34,4 +34,5 @@ public class GraphEdges {
     Map<String, Integer> getEdges(){
         return edges;
     }
+
 }
