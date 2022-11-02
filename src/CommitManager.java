@@ -3,7 +3,7 @@ import java.util.*;
 public class CommitManager{
 
     //declare instance variables
-    private List<Commit> allCommits;
+    private CommitDatabase commitDatabase;
     private int startTime;
     private int endTime;
     private CommitFileGraph commitGraph;
@@ -12,7 +12,7 @@ public class CommitManager{
     private int minimumComponentThreshold;
 
     public CommitManager(){
-        allCommits = new ArrayList<Commit>();
+        commitDatabase = new CommitDatabase();   //"Database" object that stores and organizes commits
         //-1 for startTIme and endTime denote that not time window is currently in effect
         startTime = -1;
         endTime = -1;
@@ -46,9 +46,19 @@ public class CommitManager{
         if(task.trim().length()==2){   //denotes task identifier is "B-" or "F-" followed by an empty string, which is invalid as it provides no identifying information
             throw new IllegalArgumentException("Commit task identifier empty! \n\tSource: addCommit");
         }
+        Iterator commitFilesItr = commitFiles.iterator();
+        while(commitFilesItr.hasNext()){
+            String commitFile = (String) commitFilesItr.next();
+            if(commitFile==null){
+                throw new IllegalArgumentException("One or more of the commit files is null! \n\tSource: addCommit");
+            }
+            if(commitFile.trim().equals("")){
+                throw new IllegalArgumentException("One or more of the commit files names is empty! \n\tSource: addCommit");
+            }
+        }
         //encapsulate commit data in "Commit" object and store in list for later use
         Commit newCommit = new Commit(commitTime, commitFiles, task, developer);
-        allCommits.add(newCommit);
+        commitDatabase.add(newCommit);
         commitGraph.addToGraph(commitFiles);   //update graph based on the commit files
     }
 
@@ -63,6 +73,7 @@ public class CommitManager{
         }
         //clear and recalculate time window commit graph based on new time window
         timeWindowCommitGraph.clear();
+        List<Commit> allCommits = commitDatabase.getAllCommits();
         for(int i=0; i<allCommits.size(); i++){
             Commit commit = (Commit) allCommits.get(i);
             if(commit.getCommitTime()>=startTime && commit.getCommitTime()<=endTime){
@@ -120,9 +131,9 @@ public class CommitManager{
             throw new IllegalArgumentException("Threshold must be greater than 0! \n\tSource: repetitionInBugs");
         }
         //call helper class method that returns a String-List map that groups each bug task with a list of all its associated files committed during the time window set
-        Map<String, List<String>> bugTasks = CommitUtilityOperations.groupBugFiles(allCommits, startTime, endTime);
+        Map<String, List<String>> bugTaskFiles = commitDatabase.groupBugTaskFiles(startTime, endTime);
         Set<String> repeatedBugs = new HashSet<>();
-        for(Map.Entry<String, List<String>> bugTask: bugTasks.entrySet()){    //iterate through each bug task-file grouping
+        for(Map.Entry<String, List<String>> bugTask: bugTaskFiles.entrySet()){    //iterate through each bug task-file grouping
             ArrayList<String> bugFiles = (ArrayList) bugTask.getValue();
             //iterate through each of the bug task's files and tally how many times that file appeared
             for(int i=0; i<bugFiles.size(); i++){
@@ -150,10 +161,10 @@ public class CommitManager{
         }
         Set<Set<String>> components = softwareComponents();
         //call helper class method that groups each feature task with all the files associated with it
-        Map<String, List<String>> features = CommitUtilityOperations.groupFeatureFiles(allCommits, startTime, endTime);
+        Map<String, List<String>> featureTaskFiles = commitDatabase.groupFeatureTaskFiles(startTime, endTime);
         Set<String> broadFeatures = new HashSet<>();
         //loop through feature task in the feature-files groupings map
-        for(Map.Entry<String, List<String>> feature: features.entrySet()){
+        for(Map.Entry<String, List<String>> feature: featureTaskFiles.entrySet()){
             List<String> featureFiles = feature.getValue();
             int featureThresholdCounter = 0;
             Iterator<Set<String>> componentsItr = components.iterator();
@@ -186,8 +197,8 @@ public class CommitManager{
         Set<String> experts = new HashSet<>();
         Set<Set<String>> components = softwareComponents();
         //call helper class method that returns a map that groups each developer with every file they committed
-        Map<String, List<String>> developers = CommitUtilityOperations.groupDeveloperCommitFiles(allCommits, startTime, endTime);
-        for(Map.Entry<String, List<String>> developer: developers.entrySet()){
+        Map<String, List<String>> developerCommitFiles = commitDatabase.groupDeveloperCommitFiles(startTime, endTime);
+        for(Map.Entry<String, List<String>> developer: developerCommitFiles.entrySet()){
             int expertThresholdCounter = 0;
             Iterator<Set<String>> componentsItr = components.iterator();
             while(componentsItr.hasNext()){   //loop through each component
@@ -220,7 +231,7 @@ public class CommitManager{
         }
         //call helper class method that returns a String-Integer map where the string is a file's name and the integer value is the number of times it occurred.
         //note that this map is sorted by its values (number of occurrences) in descending order and only contains files committed during the time window (if one is set)
-        Map<String, Integer> fileOccurrences = CommitUtilityOperations.calculateFileOccurrences(allCommits, startTime, endTime);
+        Map<String, Integer> fileOccurrences = commitDatabase.calculateFileOccurrences(startTime, endTime);
         int fileLimitCounter = 0;
         int tiedOccurrenceAtLimit = -1;
         //iterate through the files in the sorted file occurrences map, adding files into the busyClasses list until we hit the limit

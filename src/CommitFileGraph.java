@@ -5,6 +5,7 @@ import java.util.*;
 //the edges also store how many times files have appeared together
 public class CommitFileGraph {
 
+
     //graph stored as String-Object map, where string denotes files (vertices)
     //and GraphEdges object stores all the other files they appeared together with and how many times they appeared together
     //(similar to adjacency list, but with GraphEdges object instead of linked lists for each vertex)
@@ -13,6 +14,7 @@ public class CommitFileGraph {
     CommitFileGraph(){
         commitFileGraph = new HashMap<>();
     }
+
 
 
     //this function is invoked whenever addCommit(..) function is called.
@@ -25,6 +27,7 @@ public class CommitFileGraph {
             commitFileGraph.get(file).addEdges(commitFiles, file);   //update all the vertex's edges based on the files of the commit
         }
     }
+
 
 
     //this function groups files into components based on the threshold set in componentMinimum(..)
@@ -55,6 +58,7 @@ public class CommitFileGraph {
     }
 
 
+
     //this function checks whether a file is already present in an existing component
     //the function is called during the groupComponents(..) function above
     private Set<String> componentsContain(Set<Set<String>> allComponents, String file){
@@ -72,6 +76,7 @@ public class CommitFileGraph {
         }
         return null;
     }
+
 
 
     private Set<Set<String>> removeDuplicateComponents(Set<Set<String>> allComponentsSet){
@@ -104,6 +109,7 @@ public class CommitFileGraph {
         }
         return allComponentsSet;
     }
+
 
 
     void clear(){
