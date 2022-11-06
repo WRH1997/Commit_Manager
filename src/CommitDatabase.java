@@ -100,7 +100,7 @@ public class CommitDatabase {
             while(filesItr.hasNext()){
                 String file = (String) filesItr.next();
                 if(!featureTaskFiles.contains(file)){
-                    featureTaskFiles.add((String) filesItr.next());
+                    featureTaskFiles.add(file);
                 }
             }
             allFeatureTaskFiles.put(commitTask, featureTaskFiles);

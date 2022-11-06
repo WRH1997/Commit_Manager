@@ -48,7 +48,7 @@ public class CommitFileGraph {
             //and add each of those edges that appeared with the file at least "threshold" time to the component
             Map<String, Integer> fileEdges = file.getValue().getEdges();
             for(Map.Entry<String, Integer> edge: fileEdges.entrySet()){
-                if(edge.getValue()>=threshold && !component.contains(edge.getKey())){   //note that we also check whether the edge already exists in the component since we may be operating on an existing component
+                if(edge.getValue()>=threshold && !component.contains(edge.getKey())){   //note that we also check whether the edge (destination file) already exists in the component since we may be operating on an existing component
                     component.add(edge.getKey());
                 }
             }

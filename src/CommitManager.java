@@ -38,6 +38,9 @@ public class CommitManager{
         if(commitTime<0){
             throw new IllegalArgumentException("Commit time is negative (invalid)! \n\tSource: addCommit");
         }
+        if(task.trim().equals("")){
+            throw new IllegalArgumentException("Task is empty string (invalid)! \n\tSource: addCommit");
+        }
         if(task.charAt(0)!='F' && task.charAt(0)!='B'){
             throw new IllegalArgumentException("Commit task is not a bug ('B') or feature ('F') [case-sensitive]! \n\tSource: addCommit");
         }
@@ -60,7 +63,12 @@ public class CommitManager{
         //encapsulate commit data in "Commit" object and store in list for later use
         Commit newCommit = new Commit(commitTime, commitFiles, task, developer);
         commitDatabase.add(newCommit);
-        commitGraph.addToGraph(commitFiles);   //update graph based on the commit files
+        commitGraph.addToGraph(commitFiles);   //update graph of all files based on the commit files
+        if(startTime!=-1 && endTime!=-1){   //a time window is in effect
+            if(commitTime>=startTime && commitTime<=endTime){   //this commit falls inside time window
+                timeWindowCommitGraph.addToGraph(commitFiles);   //update graph of files committed in this time window based on commit files
+            }
+        }
     }
 
 
@@ -227,9 +235,6 @@ public class CommitManager{
             throw new IllegalArgumentException("Limit must be greater than 0! \n\tSource: busyClasses");
         }
         List<String> busyClasses = new ArrayList<>();
-        if(limit<=0){
-            return busyClasses;
-        }
         //call helper class method that returns a String-Integer map where the string is a file's name and the integer value is the number of times it occurred.
         //note that this map is sorted by its values (number of occurrences) in descending order and only contains files committed during the time window (if one is set)
         Map<String, Integer> fileOccurrences = commitDatabase.calculateFileOccurrences(startTime, endTime);
