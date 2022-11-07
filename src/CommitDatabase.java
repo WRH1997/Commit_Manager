@@ -174,7 +174,6 @@ public class CommitDatabase {
         }
         //sort file-tally map by its values in descending order
         Map<String, Integer> sortedFileOccurrences = sortByValue(fileOccurrences);
-        System.out.println(sortedFileOccurrences);
         return sortedFileOccurrences;
     }
 
