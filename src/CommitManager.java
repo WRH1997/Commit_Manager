@@ -66,7 +66,7 @@ public class CommitManager{
         commitGraph.addToGraph(commitFiles);   //update graph of all files based on the commit files
         if(startTime!=-1 && endTime!=-1){   //a time window is in effect
             if(commitTime>=startTime && commitTime<=endTime){   //this commit falls inside time window
-                timeWindowCommitGraph.addToGraph(commitFiles);   //update graph of files committed in this time window based on commit files
+                timeWindowCommitGraph.addToGraph(commitFiles);   //also update graph of files committed in this time window
             }
         }
     }
@@ -123,7 +123,7 @@ public class CommitManager{
 
 
     Set<Set<String>> softwareComponents(){
-        if(minimumComponentThreshold>0){   //a minimum component threshold was set
+        if(minimumComponentThreshold>0){   //a minimum component threshold is set
             componentMinimum(minimumComponentThreshold);   //return components based on threshold
         }
         else{   //no minimum component threshold set
@@ -238,7 +238,7 @@ public class CommitManager{
         //call helper class method that returns a String-Integer map where the string is a file's name and the integer value is the number of times it occurred.
         //note that this map is sorted by its values (number of occurrences) in descending order and only contains files committed during the time window (if one is set)
         Map<String, Integer> fileOccurrences = commitDatabase.calculateFileOccurrences(startTime, endTime);
-        int fileLimitCounter = 0;
+        int fileLimitCounter = 1;
         int tiedOccurrenceAtLimit = -1;
         //iterate through the files in the sorted file occurrences map, adding files into the busyClasses list until we hit the limit
         for(Map.Entry<String, Integer> file: fileOccurrences.entrySet()){
